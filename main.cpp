@@ -1,44 +1,59 @@
 #include <iostream>
 #include <thread>
 #include <mutex>
-#include <vector>
+#include <deque>
+#include <unistd.h>
 using namespace std;
 mutex m;
-void roadA(vector <int> cars, vector <int> directions)
+void roadA( deque <int> &cars, deque  <int> &directions,deque  <int> &time)
 {
-    lock_guard<mutex> guard(m);
-    cout<<"Green light for road A"<<endl;
-    for (int i = 0; i<cars.size();i++)
+    while(true)
     {
-        if(directions[i] <=2)
+        sleep(1);
+        lock_guard<mutex> guard(m);
+        if(cars.empty()) break;
+        cout<<"Green light for road A"<<endl;
+        while(!cars.empty() && directions.front() <=2)
         {
-            cout<<"Car "<< cars[i] <<" Moving in direction "<< directions[i] << endl;
+            cout<<"Car "<< cars.front() <<" Moving in direction "<< directions.front()
+            <<" Time: "<<time.front() << endl;
+            cars.pop_front();
+            directions.pop_front();
+            time.pop_front();
         }
     }
 }
-void roadB(vector <int> cars, vector <int> directions)
+void roadB( deque <int> &cars, deque  <int> &directions,deque  <int> &time)
 {
-    lock_guard<mutex> guard(m);
-    cout<<"Green light for road B"<<endl;
-    for (int i = 0; i<cars.size();i++)
+    while(true)
     {
-        if(directions[i] > 2)
+        sleep(1);
+        lock_guard<mutex> guard(m);
+        if(cars.empty()) break;
+        cout<<"Green light for road B"<<endl;
+        while(!cars.empty() && directions.front() >2)
         {
-            cout<<"Car "<< cars[i] <<" Moving in direction "<< directions[i] <<endl;
+            cout<<"Car "<< cars.front() <<" Moving in direction "<< directions.front()
+            <<" Time: "<<time.front() << endl;
+            cars.pop_front();
+            directions.pop_front();
+            time.pop_front();
         }
     }
 }
 int main()
 {
-    vector <int> cars = {2,5,1,3,4};
-    vector <int> directions = {2,1,2,4,3};
+    deque  <int> cars = {2,5,1,3,4};
+    deque  <int> directions = {2,3,1,3,4};
+    deque  <int> time = {10,20,30,40,40};
 
-    thread A(roadA,cars,directions);
-    thread B(roadB,cars,directions);
+    thread A(roadA,ref(cars),ref(directions),ref(time));
+    thread B(roadB,ref(cars),ref(directions),ref(time));
     if(A.joinable())
         A.join();
     if(B.joinable())
         B.join();
+
 
     return 0;
 }
