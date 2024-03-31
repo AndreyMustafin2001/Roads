@@ -14,7 +14,7 @@ void turnGreen(int roadId)
     char roadName;
     if(roadId == 0)roadName = 'A';
     else roadName = 'B';
-
+    std::lock_guard<std::mutex>guard(m);
     if(svetafor != roadId)std::cout << "Turn Green for road" << roadName << std::endl;
     svetafor = roadId;
 }
